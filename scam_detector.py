@@ -1,13 +1,13 @@
 import re
 from numpy import max
-from sklearn.svm import LinearSVC, SVC
-from sklearn.model_selection import train_test_split,cross_val_score
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MaxAbsScaler
-from nltk.corpus import stopwords
-from sklearn.metrics import accuracy_score,f1_score, recall_score
-from IPython.display import clear_output
+#from sklearn.svm import LinearSVC, SVC
+#from sklearn.model_selection import train_test_split,cross_val_score
+#from sklearn.feature_extraction.text import TfidfVectorizer
+#from sklearn.pipeline import Pipeline
+#from sklearn.preprocessing import MaxAbsScaler
+#from nltk.corpus import stopwords
+#from sklearn.metrics import accuracy_score,f1_score, recall_score
+#from IPython.display import clear_output
 import pickle
 import json
 
@@ -27,15 +27,20 @@ class ScamDetector():
         return re.sub(pattern='https.+|\n|\\\\n|\"|^\d.\/|@\w+|\W', repl=' ', string=text).strip()
 
     def run(self,text):
-        text = self.__clean_tweet(text)
-        proba = self.model.predict_proba([text])[0]
-        pred = self.model.predict([text])[0]
+        text = [self.__clean_tweet(t) for t in text]
+        proba = self.model.predict_proba(text)
+        pred = self.model.predict(text)
         return {
-            'decision':self.decode_dict[pred],
-            'confidence': max(proba)
+            'decision':[self.decode_dict[p] for p in pred.tolist()],
+            'confidence': [max(proba[i,:]) for i in range(proba.shape[0])]
         }
 if __name__ == '__main__':
     sd = ScamDetector('config.json')
+    test_mes = [
+        'whats app mah niggas',
+        'we are starting a free btc giveaway huge profits guaranteed'
+    ]
+    print(sd.run(test_mes))
     while True:
         mes = input()
         if mes == 'q':
