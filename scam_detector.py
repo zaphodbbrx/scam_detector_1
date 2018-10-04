@@ -10,8 +10,8 @@ class ScamDetector():
         with open(config['model_path'],'rb') as f:
             self.model = pickle.load(f)
         self.decode_dict = {
-            1.0: 'scam',
-            0.0: 'no scam'
+            1.0: 'present',
+            0.0: 'absent'
         }
 
     def __clean_tweet(self, text):
